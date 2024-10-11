@@ -1,5 +1,13 @@
 // https://github.com/wasmerio/wasmer-js/issues/321
-Uint8Array.prototype.write = (string, encoding) => new TextEncoder(encoding).encode(string)
+Object.defineProperty(Object.getPrototypeOf({}), "__proto__", {
+    get() {
+        return Object.getPrototypeOf(this)
+    },
+    set(value) {
+        return Object.setPrototypeOf(this, value)
+    }
+})
+
 ;(function () {
     "use strict"
     function Ar(t, e) {
@@ -134,9 +142,28 @@ Uint8Array.prototype.write = (string, encoding) => new TextEncoder(encoding).enc
             }
     R.TYPED_ARRAY_SUPPORT = Ne.TYPED_ARRAY_SUPPORT !== void 0 ? Ne.TYPED_ARRAY_SUPPORT : !0
     var rs = R.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823
-    function It(t, e) {
-        if ((R.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823) < e) throw new RangeError("Invalid typed array length")
-        return R.TYPED_ARRAY_SUPPORT ? ((t = new Uint8Array(e)), (t.__proto__ = R.prototype)) : (t === null && (t = new R(e)), (t.length = e)), t
+    // function It(t, e) {
+    //     if ((R.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823) < e) throw new RangeError("Invalid typed array length")
+    //     return R.TYPED_ARRAY_SUPPORT ? ((t = new Uint8Array(e)), (t.__proto__ = R.prototype)) : (t === null && (t = new R(e)), (t.length = e)), t
+    // }
+    function It(array, length) {
+        const maxLength = R.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823;
+        
+        if (length > maxLength) {
+            throw new RangeError("Invalid typed array length");
+        }
+        
+        if (R.TYPED_ARRAY_SUPPORT) {
+            array = new Uint8Array(length);
+            Object.setPrototypeOf(array, R.prototype);
+        } else {
+            if (array === null) {
+                array = new R(length);
+            }
+            array.length = length;
+        }
+        
+        return array;
     }
     function R(t, e, r) {
         if (!(R.TYPED_ARRAY_SUPPORT || this instanceof R)) return new R(t, e, r)
@@ -2220,9 +2247,28 @@ use chrome, FireFox or Internet Explorer 11`)
             }
     S.TYPED_ARRAY_SUPPORT = te.TYPED_ARRAY_SUPPORT !== void 0 ? te.TYPED_ARRAY_SUPPORT : !0
     var Fs = S.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823
-    function kt(t, e) {
-        if ((S.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823) < e) throw new RangeError("Invalid typed array length")
-        return S.TYPED_ARRAY_SUPPORT ? ((t = new Uint8Array(e)), (t.__proto__ = S.prototype)) : (t === null && (t = new S(e)), (t.length = e)), t
+    // function kt(t, e) {
+    //     if ((S.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823) < e) throw new RangeError("Invalid typed array length")
+    //     return S.TYPED_ARRAY_SUPPORT ? ((t = new Uint8Array(e)), (t.__proto__ = S.prototype)) : (t === null && (t = new S(e)), (t.length = e)), t
+    // }
+    function kt(array, length) {
+        const maxLength = R.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823;
+        
+        if (length > maxLength) {
+            throw new RangeError("Invalid typed array length");
+        }
+        
+        if (R.TYPED_ARRAY_SUPPORT) {
+            array = new Uint8Array(length);
+            Object.setPrototypeOf(array, R.prototype);
+        } else {
+            if (array === null) {
+                array = new R(length);
+            }
+            array.length = length;
+        }
+        
+        return array;
     }
     function S(t, e, r) {
         if (!(S.TYPED_ARRAY_SUPPORT || this instanceof S)) return new S(t, e, r)
@@ -6746,6 +6792,7 @@ use chrome, FireFox or Internet Explorer 11`)
         }
         writeFile(e, r) {
             this.wasmFs.fs.writeFileSync(e, r)
+            console.debug(`finished writing ${e}`)
         }
         readFile(e) {
             const r = this.wasmFs.fs.readFileSync(e)
