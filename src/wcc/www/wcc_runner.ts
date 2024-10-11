@@ -3,7 +3,9 @@ import {unzip} from 'https://esm.sh/fflate@0.8.2'
 import uint8ArrayForWccfilesZip from "./wccfiles.zip.binaryified.js"
 
 // import { WasiWorker } from './wasi_worker.ts'
+import uint8ArrayForWasiWorkerJs from "./wasi_worker.js.binaryified.js"
 
+const webWorkerCode = URL.createObjectURL(new Blob([uint8ArrayForWasiWorkerJs], { type: "text/javascript" }))
 
 const PACKED_ZIP_PATH = 'wccfiles.zip'
 
@@ -43,7 +45,7 @@ export class WccRunner {
     }
 
     this.worker = new Worker(
-        new URL("wasi_worker.js", import.meta.url).href,
+        webWorkerCode,
         { type: 'module' }
     )
     this.worker.onmessage = (ev: MessageEvent<any>) => {
