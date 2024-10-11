@@ -1,7 +1,9 @@
 import path from 'path-browserify'
 import {unzip} from 'fflate'
+import uint8ArrayForWccfilesZip from "./wccfiles.zip.binaryified.js"
 
-import WasiWorker from './wasi_worker.ts?worker'
+// import { WasiWorker } from './wasi_worker.ts'
+
 
 const PACKED_ZIP_PATH = 'wccfiles.zip'
 
@@ -40,7 +42,10 @@ export class WccRunner {
         console.log(text)
     }
 
-    this.worker = new WasiWorker()
+    this.worker = new Worker(
+        new URL("wasi_worker.js", import.meta.url).href,
+        { type: 'module' }
+    )
     this.worker.onmessage = (ev: MessageEvent<any>) => {
       const data = ev.data
       if (data.messageId != null && this.actionHandlerMap.has(data.messageId)) {
@@ -67,38 +72,35 @@ export class WccRunner {
 
   public async setUp(): Promise<void> {
     const recursiveTrue = {recursive: true}
-
+    
     await Promise.all([
-      loadFromServer(PACKED_ZIP_PATH, {binary: true})
-        .then((binary) => new Promise((resolve, reject) => {
-          return unzip(new Uint8Array(binary as ArrayBuffer), (err, unzipped) => {
-            if (err) {
-              reject(err)
-              return
-            }
+        this.mkdir(TMP_PATH, recursiveTrue),
+        this.mkdir(this.curDir, recursiveTrue),
+        new Promise((resolve, reject) => {
+            return unzip(uint8ArrayForWccfilesZip, (err, unzipped) => {
+                if (err) {
+                    reject(err)
+                    return
+                }
 
-            let ccExists = false
-            const promises = Object.entries(unzipped).map(async ([filename, data]) => {
-              if (data == null || data.byteLength === 0)  // Skip directories.
-                return
-              const filepath = `/${filename}`
-              await this.mkdir(path.dirname(filepath), recursiveTrue)
-              await this.writeFile(filepath, data)
-              ccExists ||= filepath === CC_PATH
+                let ccExists = false
+                const promises = Object.entries(unzipped).map(async ([filename, data]) => {
+                    if (data == null || data.byteLength === 0)
+                        // Skip directories.
+                        return
+                    const filepath = `/${filename}`
+                    await this.mkdir(path.dirname(filepath), recursiveTrue)
+                    await this.writeFile(filepath, data)
+                    ccExists ||= filepath === CC_PATH
+                })
+                Promise.all(promises)
+                    .then((result) => {
+                        if (!ccExists) throw "C-compiler not found in the zip file"
+                        resolve(result)
+                    })
+                    .catch(reject)
             })
-            Promise.all(promises)
-              .then((result) => {
-                if (!ccExists)
-                  throw 'C-compiler not found in the zip file'
-                resolve(result)
-              })
-              .catch(reject)
-          })
-        })),
-
-      this.mkdir(TMP_PATH, recursiveTrue),
-
-      this.mkdir(this.curDir, recursiveTrue),
+        }),
     ])
 
     await this.chdir(this.curDir)
