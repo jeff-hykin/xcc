@@ -1,3 +1,5 @@
+// https://github.com/wasmerio/wasmer-js/issues/321
+Uint8Array.prototype.write = (string, encoding) => new TextEncoder(encoding).encode(string)
 ;(function () {
     "use strict"
     function Ar(t, e) {
