@@ -1,5 +1,6 @@
-import { DisWasm } from "./diswasm.ts"
-import { WccRunner } from "./wcc_runner.ts"
+// import { DisWasm } from "./diswasm.ts"
+// import { WccRunner } from "./wcc_runner.ts"
+import { WccRunner, DisWasm } from "./xcc.bundle.js"
 
 var wccRunner = new WccRunner()
 wccRunner.setConsoleOutFunction((text, _isError) => console.log(`[wccRunner.setConsoleOutFunction] error?: ${_isError}, text: ${text}`))
@@ -56,47 +57,3 @@ let compiledWasm = await run({
 })
 console.log(`compiledWasm is:`,compiledWasm)
 Deno.exit()
-// const sourcePath = "/main.c"
-// await wccRunner.writeFile(sourcePath, `
-//     #include <stdio.h>
-
-//     int fib(int n) {
-//         if (n < 2)
-//             return n;
-//         else
-//             return fib(n - 1) + fib(n - 2);
-//     }
-
-//     int main() {
-//         printf("%d\\n", fib(30));
-//         return 0;
-//     }
-//     `)
-
-// let exitCode = await wccRunner.compile(sourcePath, [])
-
-// console.log(`exitCode is:`,exitCode)
-// Deno.exit()
-
-// try {
-//     console.log("here2")
-//     await wccRunner.writeFile("/main.c", `
-//     #include <stdio.h>
-
-//     int fib(int n) {
-//         if (n < 2)
-//             return n;
-//         else
-//             return fib(n - 1) + fib(n - 2);
-//     }
-
-//     int main() {
-//         printf("%d\\n", fib(30));
-//         return 0;
-//     }
-//     `)
-// } catch (error) {
-//     console.log("here")
-//     console.log(error)
-//     console.log(error.stack)
-// }
