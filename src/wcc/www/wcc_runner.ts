@@ -1,5 +1,5 @@
-import path from 'path-browserify'
-import {unzip} from 'fflate'
+import path from 'https://esm.sh/path-browserify@1.0.1'
+import {unzip} from 'https://esm.sh/fflate@0.8.2'
 import uint8ArrayForWccfilesZip from "./wccfiles.zip.binaryified.js"
 
 // import { WasiWorker } from './wasi_worker.ts'
