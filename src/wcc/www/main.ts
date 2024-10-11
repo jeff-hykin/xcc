@@ -1,7 +1,7 @@
-import {DisWasm} from './diswasm'
+import { DisWasm } from "./diswasm.ts"
 import * as Split from 'split.js'
 import {Util} from './util'
-import {WccRunner} from './wcc_runner'
+import { WccRunner } from "./wcc_runner.ts"
 import Alpine from 'alpinejs'
 
 import hello from './examples/hello.c?raw'

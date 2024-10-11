@@ -6735,7 +6735,12 @@ use chrome, FireFox or Internet Explorer 11`)
                         }
                         this.self.postMessage({ messageId: i.messageId, result: s })
                     } catch (u) {
-                        this.self.postMessage({ messageId: i.messageId, error: u.toString() })
+                        if (u.stack) {
+                            u = u.stack
+                        } else {
+                            u = u.toString()
+                        }
+                        this.self.postMessage({ messageId: i.messageId, error: u })
                     }
                 })
         }
