@@ -4,6 +4,10 @@
 #if defined(__NR_unlinkat)
 #include "errno.h"
 
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 int unlinkat(int dirfd, const char *pathname, int flags) {
   int ret;
   SYSCALL_RET(__NR_unlinkat, ret);

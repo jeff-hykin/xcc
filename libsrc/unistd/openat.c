@@ -7,6 +7,10 @@
 #define AT_FDCWD  -100
 
 #if defined(__NR_openat)
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 int openat(int dirfd, const char *fn, int flag, mode_t mode) {
   int ret;
   SYSCALL_RET(__NR_openat, ret);
