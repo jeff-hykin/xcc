@@ -9,6 +9,7 @@
     "build-assets": "make assets",
     "lint": "eslint src/wcc/www/**/*.ts",
     "lint:fix": "eslint --fix src/wcc/www/**/*.ts",
+    "build-lib": "cd libsrc && make",
     "release": "npx vite build",
     "clean": "rm -rf public release"
   },
