@@ -33,12 +33,13 @@ static void usage(FILE *fp) {
       fp,
       "Usage: wcc [options] file...\n"
       "Options:\n"
-      "  -I <path>             Add include path\n"
-      "  -D <label[=value]>    Define label\n"
-      "  -o <filename>         Set output filename (Default: a.wasm)\n"
-      "  -c                    Output object file\n"
-      "  --entry-point=<name>  Specify entry point (Defulat: _start)\n"
-      "  --stack-size=<size>   Output object file (Default: 8192)\n"
+      "  -I <path>               Add include path\n"
+      "  -D <label[=value]>      Define label\n"
+      "  -o <filename>           Set output filename (Default: a.wasm)\n"
+      "  -c                      Output object file\n"
+      "  --entry-point=<name>    Specify entry point (Defulat: _start)\n"
+      "  --stack-size=<size>     Output object file (Default: 8192)\n"
+      "  --list-exportable-names Export all\n"
   );
 }
 
@@ -121,7 +122,7 @@ static void compilec(FILE *ppin, const char *filename, Vector *toplevel) {
 }
 
 int compile_csource(const char *src, enum OutType out_type, const char *ofn, Vector *ld_cmd,
-                    const char *import_module_name) {
+                    const char *import_module_name, bool list_exportable_names) {
   FILE *ppout;
   if (out_type == OutPreprocess)
     ppout = ofn != NULL ? fopen(ofn, "w") : stdout;
@@ -170,7 +171,7 @@ int compile_csource(const char *src, enum OutType out_type, const char *ofn, Vec
 
   fclose(ppout);
 
-  traverse_ast(toplevel);
+  traverse_ast(toplevel, list_exportable_names);
   if (compile_error_count != 0)
     return 1;
 
@@ -233,7 +234,7 @@ typedef struct {
   enum OutType out_type;
   enum SourceType src_type;
   uint32_t stack_size;
-  bool nodefaultlibs, nostdlib, nostdinc;
+  bool nodefaultlibs, nostdlib, nostdinc, list_exportable_names;
 } Options;
 
 static void parse_options(int argc, char *argv[], Options *opts) {
@@ -250,6 +251,7 @@ static void parse_options(int argc, char *argv[], Options *opts) {
     OPT_NOSTDINC,
     OPT_ISYSTEM,
     OPT_IDIRAFTER,
+    OPT_LIST_EXPORTABLE_NAMES,
 
     OPT_WARNING,
     OPT_OPTIMIZE,
@@ -275,6 +277,7 @@ static void parse_options(int argc, char *argv[], Options *opts) {
     {"nodefaultlibs", no_argument, OPT_NODEFAULTLIBS},
     {"nostdlib", no_argument, OPT_NOSTDLIB},
     {"nostdinc", no_argument, OPT_NOSTDINC},
+    {"-list-exportable-names", no_argument, OPT_LIST_EXPORTABLE_NAMES},
     {"-import-module-name", required_argument, OPT_IMPORT_MODULE_NAME},
     {"-verbose", no_argument, OPT_VERBOSE},
     {"-entry-point", required_argument, OPT_ENTRY_POINT},
@@ -346,6 +349,9 @@ static void parse_options(int argc, char *argv[], Options *opts) {
       break;
     case OPT_IDIRAFTER:
       add_inc_path(INC_AFTER, optarg);
+      break;
+    case OPT_LIST_EXPORTABLE_NAMES:
+      opts->list_exportable_names = true;
       break;
     case 'D':
       define_macro(optarg);
@@ -543,7 +549,8 @@ static int do_compile(Options *opts) {
       return 1;  // exit
     case Clanguage:
       {
-        int res = compile_csource(src, opts->out_type, outfn, obj_files, opts->import_module_name);
+        int res = compile_csource(src, opts->out_type, outfn, obj_files, opts->import_module_name,
+                                  opts->list_exportable_names);
         if (res != 0)
           return 1;  // exit
       }

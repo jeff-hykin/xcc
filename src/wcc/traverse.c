@@ -811,7 +811,7 @@ static void add_builtins(void) {
   }
 }
 
-void traverse_ast(Vector *decls) {
+void traverse_ast(Vector *decls, bool list_exportable_names) {
   // Global scope
   for (int k = 0; k < 2; ++k) {  // 0=register, 1=traverse
     for (int i = 0, len = global_scope->vars->len; i < len; ++i) {
@@ -877,6 +877,7 @@ void traverse_ast(Vector *decls) {
         }
         info->symbol_index = symbol_index++;
         VERBOSE("%2d: %.*s (%d)\n", info->item_index, NAMES(varinfo->name), info->symbol_index);
+        list_exportable_names && printf("    @exportable:%.*s\n", NAMES(varinfo->name));
       }
     }
 
@@ -902,6 +903,7 @@ void traverse_ast(Vector *decls) {
           continue;
         info->index = index++;
         VERBOSE("%2d: %.*s%s\n", info->index, NAMES(name), k == 0 ? "  (import)" : "");
+        list_exportable_names && printf("    @exportable:%.*s\n", NAMES(name));
       }
     }
     VERBOSES("\n");
@@ -931,6 +933,7 @@ void traverse_ast(Vector *decls) {
         size_t size = type_size(varinfo->type);
         address += size;
         VERBOSE("%04x: %.*s  (size=0x%zx)\n", info->non_prim.address, NAMES(varinfo->name), size);
+        list_exportable_names && printf("    @exportable:%.*s\n", NAMES(varinfo->name));
       }
     }
   }

@@ -74,7 +74,7 @@ typedef struct {
 } TagInfo;
 
 // traverse
-void traverse_ast(Vector *decls);
+void traverse_ast(Vector *decls, bool list_exportable_names);
 
 bool is_stack_param(const Type *type);
 GVarInfo *get_gvar_info_from_name(const Name *name);
