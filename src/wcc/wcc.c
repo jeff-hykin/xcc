@@ -37,6 +37,7 @@ static void usage(FILE *fp) {
       "  -D <label[=value]>    Define label\n"
       "  -o <filename>         Set output filename (Default: a.wasm)\n"
       "  -c                    Output object file\n"
+      "  -e <func-name>        Functions to export in wasm\n"
       "  --entry-point=<name>  Specify entry point (Defulat: _start)\n"
       "  --stack-size=<size>   Output object file (Default: 8192)\n"
   );
@@ -607,7 +608,7 @@ int main(int argc, char *argv[]) {
   if (opts.entry_point != NULL && *opts.entry_point != '\0')
     vec_push(opts.exports, alloc_name(opts.entry_point, NULL, false));
   if (opts.exports->len == 0 && opts.out_type >= OutExecutable) {
-    error("no exports (require -e<xxx>)\n");
+    error("no exports (require -e <xxx>)\n");
   }
 
   VERBOSES("### Exports\n");
